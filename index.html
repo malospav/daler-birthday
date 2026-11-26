@@ -482,25 +482,51 @@
   /* ============ ФОН: ЛЕТАЮЩИЕ ФОТО / ЭМОДЗИ ============ */
   .floaty {
     position: fixed;
+    top: 0;
     z-index: 1;
     opacity: 0;
     pointer-events: none;
-    animation: floatUp linear infinite;
-    border-radius: 12px;
+    will-change: transform, opacity;
+    animation: floatUp linear forwards;
+    border-radius: 18px;
   }
   .floaty img {
     display: block;
     width: 100%;
     height: auto;
-    border-radius: 14px;
-    border: 3px solid var(--pink);
-    box-shadow: 0 0 20px rgba(255, 110, 199, 0.5);
+    border-radius: 18px;
+    border: 3px solid rgba(255, 110, 199, 0.85);
+    box-shadow:
+      0 0 0 6px rgba(199, 125, 255, 0.12),
+      0 10px 40px rgba(255, 110, 199, 0.45),
+      0 0 70px rgba(199, 125, 255, 0.25);
   }
+  /* Фото выплывает снизу, мягко проявляется, слегка покачивается
+     и так же мягко растворяется у верхнего края */
   @keyframes floatUp {
-    0%   { transform: translateY(105vh) rotate(-8deg); opacity: 0; }
-    10%  { opacity: 0.45; }
-    90%  { opacity: 0.45; }
-    100% { transform: translateY(-15vh) rotate(8deg); opacity: 0; }
+    0% {
+      transform: translate3d(0, 100vh, 0) rotate(var(--r0, -6deg)) scale(0.82);
+      opacity: 0;
+      animation-timing-function: ease-out;
+    }
+    18% {
+      transform: translate3d(calc(var(--dx, 0px) * 0.4), 72vh, 0) rotate(calc(var(--r0, -6deg) * 0.4)) scale(1);
+      opacity: var(--op, 0.7);
+      animation-timing-function: linear;
+    }
+    50% {
+      transform: translate3d(var(--dx, 0px), 38vh, 0) rotate(0deg) scale(1.03);
+      opacity: var(--op, 0.7);
+    }
+    72% {
+      transform: translate3d(calc(var(--dx, 0px) * 0.5), 12vh, 0) rotate(calc(var(--r1, 6deg) * 0.5)) scale(1);
+      opacity: var(--op, 0.7);
+      animation-timing-function: ease-in;
+    }
+    100% {
+      transform: translate3d(0, -100%, 0) rotate(var(--r1, 6deg)) scale(0.9);
+      opacity: 0;
+    }
   }
 
   /* ============ СЛЕД КУРСОРА ============ */
@@ -834,26 +860,37 @@ function spawnFloaty(isMeme) {
     img.src = sources[Math.floor(Math.random() * sources.length)];
     img.alt = '';
     img.addEventListener('error', () => node.remove());
-    node.style.width = Math.round(rnd(80, 130)) + 'px';
+    // Крупнее и зависит от ширины экрана: на телефоне ~40% ширины, на ПК до 280px
+    const base = Math.min(280, Math.max(140, window.innerWidth * 0.26));
+    node.style.width = Math.round(base * rnd(0.8, 1.1)) + 'px';
+    node.style.setProperty('--op', isMeme ? '0.8' : rnd(0.6, 0.8).toFixed(2));
     node.appendChild(img);
   } else {
     node.textContent = FALLBACK_EMOJIS[Math.floor(Math.random() * FALLBACK_EMOJIS.length)];
     node.style.fontSize = rnd(1.8, 3.6).toFixed(2) + 'rem';
   }
 
-  node.style.left = rnd(2, 92).toFixed(2) + 'vw';
-  const duration = rnd(8, 15);
+  // Не даём крупному фото вылезать за правый край
+  node.style.left = rnd(-4, 80).toFixed(2) + 'vw';
+  node.style.setProperty('--dx', rnd(-40, 40).toFixed(0) + 'px');
+  node.style.setProperty('--r0', rnd(-10, -3).toFixed(1) + 'deg');
+  node.style.setProperty('--r1', rnd(3, 10).toFixed(1) + 'deg');
+  const duration = rnd(16, 24);
   node.style.animationDuration = duration.toFixed(2) + 's';
 
   document.body.appendChild(node);
-  setTimeout(() => node.remove(), duration * 1000);
+  // Удаляем только после того, как анимация полностью растворила фото
+  node.addEventListener('animationend', () => node.remove());
+  // Запасной вариант, если animationend не придёт (с запасом под reduced-motion = 40s)
+  setTimeout(() => node.remove(), 45000);
 
   return node;
 }
 
 // Обычный фон: эмодзи или фото
-setInterval(() => spawnFloaty(false), 750);
-for (let i = 0; i < 6; i++) setTimeout(() => spawnFloaty(false), i * 350);
+// Фото крупные, поэтому выпускаем их реже — чтобы не налезали друг на друга
+setInterval(() => spawnFloaty(false), window.innerWidth < 600 ? 2600 : 1800);
+for (let i = 0; i < 4; i++) setTimeout(() => spawnFloaty(false), i * 900);
 
 // Гифка-мем изредка пролетает на фоне (не больше двух сразу — чтобы не грузить телефон)
 setInterval(() => {
