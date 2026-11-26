@@ -529,6 +529,269 @@
     }
   }
 
+  /* Подпись под летающим фото */
+  .floaty-cap {
+    position: absolute;
+    left: 50%;
+    bottom: -14px;
+    transform: translateX(-50%) rotate(-2deg);
+    width: max-content;
+    max-width: 118%;
+    padding: 5px 12px;
+    font-size: clamp(0.72rem, 2.4vw, 0.9rem);
+    font-weight: bold;
+    line-height: 1.2;
+    text-align: center;
+    border-radius: 14px !important;
+    color: #fff;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--pink), var(--violet));
+    box-shadow: 0 4px 14px rgba(43, 0, 87, 0.6);
+  }
+
+  /* ============ ОБЛОЖКА ВИДЕО (пока грузится) ============ */
+  .video-wrap {
+    position: relative;
+    max-width: 100%;
+  }
+  .video-wrap.loading {
+    width: min(92vw, 560px);
+    height: min(52vh, 420px);
+  }
+  .video-wrap.loading video { opacity: 0; }
+  #videoCover {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    overflow: hidden;
+    border-radius: 20px;
+    border: 5px solid var(--pink);
+    box-shadow: 0 0 40px var(--violet), 0 0 80px var(--pink);
+    background: #1a0033 center / cover no-repeat;
+    transition: opacity 0.8s ease, visibility 0.8s;
+  }
+  #videoCover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(26, 0, 51, 0.35), rgba(26, 0, 51, 0.85));
+    backdrop-filter: blur(3px);
+  }
+  #videoCover > * { position: relative; }
+  #videoCover.gone { opacity: 0; visibility: hidden; pointer-events: none; }
+  .cover-ring {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: 5px solid rgba(255, 255, 255, 0.15);
+    border-top-color: var(--pink);
+    border-right-color: var(--violet);
+    animation: spin 0.9s linear infinite;
+    box-shadow: 0 0 25px rgba(255, 110, 199, 0.5);
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .cover-text {
+    font-size: clamp(1.05rem, 4vw, 1.4rem);
+    font-weight: bold;
+    text-shadow: 0 0 15px var(--pink);
+    animation: pulseText 1.6s ease-in-out infinite;
+  }
+  .cover-text small { display: block; margin-top: 6px; font-size: 0.7em; opacity: 0.75; font-weight: normal; }
+  @keyframes pulseText { 50% { opacity: 0.55; } }
+
+  /* ============ ФОТО КРУПНО (лайтбокс) ============ */
+  #lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 9500;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    padding: 20px;
+    background: rgba(16, 0, 32, 0.82);
+    backdrop-filter: blur(14px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s;
+  }
+  #lightbox.open { opacity: 1; visibility: visible; }
+  #lightboxImg {
+    max-width: 94vw;
+    max-height: 76vh;
+    border-radius: 20px;
+    border: 4px solid var(--pink);
+    box-shadow: 0 0 50px rgba(199, 125, 255, 0.7);
+    transform: scale(0.85);
+    transition: transform 0.45s cubic-bezier(.2, 1.3, .4, 1), opacity 0.25s;
+  }
+  #lightbox.open #lightboxImg { transform: scale(1); }
+  #lightboxImg.swap { opacity: 0; }
+  #lightboxCap {
+    min-height: 1.4em;
+    font-size: clamp(1rem, 4vw, 1.35rem);
+    font-weight: bold;
+    text-shadow: 0 0 15px var(--pink);
+  }
+  .lb-btn, .gal-btn {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--violet);
+    background: rgba(43, 0, 87, 0.7);
+    color: #fff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .lb-btn:hover, .gal-btn:hover { transform: scale(1.1); background: rgba(106, 13, 173, 0.85); }
+  #lbClose, #galClose { top: 15px; left: 15px; }
+  #lbPrev { left: 12px; top: 50%; transform: translateY(-50%); }
+  #lbNext { right: 12px; top: 50%; transform: translateY(-50%); }
+  #lbPrev:hover, #lbNext:hover { transform: translateY(-50%) scale(1.1); }
+  @media (max-width: 600px) {
+    #lightboxImg { max-height: 68vh; }
+    #lbPrev, #lbNext, #lbPrev:hover, #lbNext:hover { top: auto; bottom: 22px; transform: none; }
+    #lbPrev { left: calc(50% - 70px); }
+    #lbNext { right: calc(50% - 70px); }
+  }
+
+  /* ============ ФИНАЛЬНАЯ ГАЛЕРЕЯ ============ */
+  #gallery {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    overflow: hidden;
+    background: #0d001a;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1.2s ease, visibility 1.2s;
+  }
+  #gallery.open { opacity: 1; visibility: visible; }
+  .gal-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.6s ease;
+  }
+  .gal-slide.show { opacity: 1; }
+  .gal-bg {
+    position: absolute;
+    inset: -40px;
+    background: center / cover no-repeat;
+    filter: blur(28px) brightness(0.55) saturate(1.3);
+  }
+  .gal-photo {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 70px 16px 110px;
+  }
+  .gal-photo img {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 18px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 50px rgba(199, 125, 255, 0.35);
+  }
+  .gal-slide.show .gal-photo img { animation: kenBurns 7s ease-out forwards; }
+  .gal-slide.alt.show .gal-photo img { animation-name: kenBurnsAlt; }
+  @keyframes kenBurns {
+    from { transform: scale(1) translate3d(0, 0, 0); }
+    to   { transform: scale(1.07) translate3d(-1.5%, -1%, 0); }
+  }
+  @keyframes kenBurnsAlt {
+    from { transform: scale(1.07) translate3d(1.5%, 1%, 0); }
+    to   { transform: scale(1) translate3d(0, 0, 0); }
+  }
+  .gal-cap {
+    position: absolute;
+    left: 50%;
+    bottom: 52px;
+    transform: translate(-50%, 16px);
+    width: max-content;
+    max-width: 90vw;
+    text-align: center;
+    padding: 10px 22px;
+    font-size: clamp(1rem, 4.2vw, 1.4rem);
+    font-weight: bold;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255, 110, 199, 0.9), rgba(199, 125, 255, 0.9));
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.9s ease 0.6s, transform 0.9s ease 0.6s;
+  }
+  .gal-slide.show .gal-cap { opacity: 1; transform: translate(-50%, 0); }
+  .gal-cap:empty { display: none; }
+  #galProgress {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 4px;
+    width: 0;
+    z-index: 3;
+    background: linear-gradient(90deg, var(--pink), var(--violet), #ff9e00);
+    box-shadow: 0 0 12px var(--pink);
+    transition: width 0.6s ease;
+  }
+  #galCounter {
+    position: absolute;
+    top: 26px;
+    left: 50%;
+    z-index: 3;
+    transform: translateX(-50%);
+    font-size: 0.9rem;
+    opacity: 0.7;
+  }
+  #galClose { z-index: 4; }
+  .gal-final {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 26px;
+    padding: 24px;
+    background: radial-gradient(circle, rgba(106, 13, 173, 0.6), rgba(13, 0, 26, 0.95));
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1.4s ease, visibility 1.4s;
+  }
+  .gal-final.show { opacity: 1; visibility: visible; }
+  .gal-final h2 {
+    font-size: clamp(1.8rem, 8vw, 3.2rem);
+    text-shadow: 0 0 20px var(--pink), 0 0 40px var(--violet);
+  }
+  .pill-btn {
+    padding: 14px 28px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    background: linear-gradient(45deg, var(--pink), #ff9e00);
+    box-shadow: 0 0 25px rgba(255, 110, 199, 0.6);
+    transition: transform 0.2s;
+  }
+  .pill-btn:hover { transform: scale(1.06); }
+  .pill-btn.ghost { background: rgba(255, 255, 255, 0.1); border: 2px solid var(--violet); box-shadow: none; }
+  #galleryBtn { animation: fadeIn 0.8s ease; }
+
   /* ============ СЛЕД КУРСОРА ============ */
   .trail-spark {
     position: fixed;
@@ -628,7 +891,13 @@
   <!-- ===== ВИДЕО + ПОЗДРАВЛЕНИЕ ===== -->
   <div id="videoScreen" class="hide">
     <img id="surpriseImg" class="hide" alt="Сюрприз для Далера">
-    <video id="bdayVideo" class="hide" controls playsinline webkit-playsinline preload="metadata"></video>
+    <div class="video-wrap loading" id="videoWrap">
+      <video id="bdayVideo" class="hide" controls playsinline webkit-playsinline preload="metadata"></video>
+      <div id="videoCover" class="gone">
+        <div class="cover-ring"></div>
+        <div class="cover-text">🎁 Загружается сюрприз…<small>секундочку, он того стоит</small></div>
+      </div>
+    </div>
     <div class="video-missing hide" id="videoMissing">
       <span class="vm-emoji">🎁</span>
       <b>Сюрприз не загрузился</b><br>
@@ -637,6 +906,32 @@
       А поздравление ниже уже готово 👇
     </div>
     <div id="congratsText"></div>
+    <button id="galleryBtn" class="pill-btn hide" type="button">📸 Смотреть наши фото</button>
+  </div>
+
+  <!-- ===== ФОТО КРУПНО ===== -->
+  <div id="lightbox" aria-hidden="true">
+    <button class="lb-btn" id="lbClose" type="button" aria-label="Закрыть">✕</button>
+    <button class="lb-btn" id="lbPrev" type="button" aria-label="Предыдущее фото">‹</button>
+    <img id="lightboxImg" alt="">
+    <div id="lightboxCap"></div>
+    <button class="lb-btn" id="lbNext" type="button" aria-label="Следующее фото">›</button>
+  </div>
+
+  <!-- ===== ФИНАЛЬНАЯ ГАЛЕРЕЯ ===== -->
+  <div id="gallery" aria-hidden="true">
+    <div class="gal-slide" id="galA"><div class="gal-bg"></div><div class="gal-photo"><img alt=""></div><div class="gal-cap"></div></div>
+    <div class="gal-slide alt" id="galB"><div class="gal-bg"></div><div class="gal-photo"><img alt=""></div><div class="gal-cap"></div></div>
+    <div id="galCounter"></div>
+    <button class="gal-btn" id="galClose" type="button" aria-label="Закрыть галерею">✕</button>
+    <div id="galProgress"></div>
+    <div class="gal-final" id="galFinal">
+      <h2>С днём рождения,<br>Далер! ❤️</h2>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+        <button class="pill-btn" id="galReplay" type="button">🔁 Ещё раз</button>
+        <button class="pill-btn ghost" id="galDone" type="button">Закрыть</button>
+      </div>
+    </div>
   </div>
 
   <noscript>
@@ -682,6 +977,37 @@ const CONFIG = {
     'photos/photo-28.jpg', 'photos/photo-29.jpg', 'photos/photo-30.jpg',
     'photos/photo-31.jpg', 'photos/photo-32.jpg', 'photos/photo-33.jpg'
   ],
+
+  // Подписи к фото: показываются на летающих фото, при открытии крупно и в галерее.
+  // Фото без строчки здесь — просто без подписи. Меняй текст как хочешь.
+  PHOTO_CAPTIONS: {
+    'photos/photo-01.jpg': 'легенда района 🏆',
+    'photos/photo-02.jpg': 'тот самый Джан ❤️',
+    'photos/photo-04.jpg': 'обнял, поднял, все дела 🤗',
+    'photos/photo-05.jpg': 'красавчик, без вариантов 🔥',
+    'photos/photo-07.jpg': 'душа компании 🎉',
+    'photos/photo-08.jpg': 'братишка, уцишка 🫶',
+    'photos/photo-10.jpg': 'уровень крутости: 147% 📈',
+    'photos/photo-11.jpg': 'стиль — бесплатно 🕶️',
+    'photos/photo-13.jpg': 'бро навсегда 🤝',
+    'photos/photo-14.jpg': 'мозг компании 🧠',
+    'photos/photo-16.jpg': 'фотогеничность 100 lvl 📸',
+    'photos/photo-17.jpg': 'с такими не пропадёшь 🫡',
+    'photos/photo-19.jpg': 'главный по кайфу 😎',
+    'photos/photo-20.jpg': 'возраст: легендарный ✨',
+    'photos/photo-22.jpg': 'исторический кадр 🏛️',
+    'photos/photo-23.jpg': 'тут всё понятно без слов 😂',
+    'photos/photo-25.jpg': 'команда мечты 💜',
+    'photos/photo-26.jpg': 'харизма зашкаливает ⚡',
+    'photos/photo-28.jpg': 'момент, который мы помним 🥹',
+    'photos/photo-29.jpg': 'главный герой 🎬',
+    'photos/photo-31.jpg': 'просто наш Далер 💜',
+    'photos/photo-32.jpg': 'за такое не стыдно 💯',
+    'photos/photo-33.jpg': 'и это только начало 🚀'
+  },
+
+  // Финальная галерея после видео: сколько секунд на одно фото
+  GALLERY_SECONDS: 4.5,
 
   // Дополнительные гифки, которые будут изредка пролетать на фоне
   BACKGROUND_MEMES: [],
@@ -865,6 +1191,17 @@ function spawnFloaty(isMeme) {
     node.style.width = Math.round(base * rnd(0.8, 1.1)) + 'px';
     node.style.setProperty('--op', isMeme ? '0.8' : rnd(0.6, 0.8).toFixed(2));
     node.appendChild(img);
+
+    if (!isMeme) {
+      node.dataset.src = img.getAttribute('src');
+      const caption = CONFIG.PHOTO_CAPTIONS[node.dataset.src];
+      if (caption) {
+        const cap = document.createElement('div');
+        cap.className = 'floaty-cap';
+        cap.textContent = caption;
+        node.appendChild(cap);
+      }
+    }
   } else {
     node.textContent = FALLBACK_EMOJIS[Math.floor(Math.random() * FALLBACK_EMOJIS.length)];
     node.style.fontSize = rnd(1.8, 3.6).toFixed(2) + 'rem';
@@ -899,6 +1236,182 @@ setInterval(() => {
   spawnFloaty(true);
 }, 6000);
 setTimeout(() => spawnFloaty(true), 1200);
+
+/* ============================================================
+   5б. ФОТО КРУПНО ПО НАЖАТИЮ
+   Летающие фото лежат под экранами сайта, поэтому ловим нажатие
+   на весь документ и смотрим, попало ли оно в какое-нибудь фото.
+   ============================================================ */
+const lightbox    = el('lightbox');
+const lightboxImg = el('lightboxImg');
+const lightboxCap = el('lightboxCap');
+let lightboxIndex = 0;
+
+function photoAt(x, y) {
+  const nodes = [...document.querySelectorAll('.floaty[data-src]')].reverse(); // верхние — последние
+  for (const node of nodes) {
+    if (parseFloat(getComputedStyle(node).opacity) < 0.15) continue;
+    const r = node.getBoundingClientRect();
+    if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return node;
+  }
+  return null;
+}
+
+function setLightboxPhoto(index) {
+  const total = CONFIG.PHOTOS.length;
+  lightboxIndex = (index + total) % total;
+  const src = CONFIG.PHOTOS[lightboxIndex];
+  lightboxImg.classList.add('swap');
+  const pre = new Image();
+  pre.onload = pre.onerror = () => {
+    lightboxImg.src = src;
+    lightboxCap.textContent = CONFIG.PHOTO_CAPTIONS[src] || '';
+    lightboxImg.classList.remove('swap');
+  };
+  pre.src = src;
+}
+
+function openLightbox(src) {
+  const index = CONFIG.PHOTOS.indexOf(src);
+  setLightboxPhoto(index < 0 ? 0 : index);
+  lightbox.classList.add('open');
+  lightbox.setAttribute('aria-hidden', 'false');
+}
+
+function closeLightbox() {
+  lightbox.classList.remove('open');
+  lightbox.setAttribute('aria-hidden', 'true');
+}
+
+const INTERACTIVE = 'button, input, a, video, .candle, #lightbox, #gallery, #musicBox, .achievement';
+
+document.addEventListener('click', (event) => {
+  if (event.target.closest(INTERACTIVE)) return;
+  if (gallery.classList.contains('open')) return;
+  const node = photoAt(event.clientX, event.clientY);
+  if (node) openLightbox(node.dataset.src);
+});
+
+// Курсор-«рука» над фото на компьютере
+let hoverCheckAt = 0;
+document.addEventListener('mousemove', (event) => {
+  const now = Date.now();
+  if (now - hoverCheckAt < 120) return;
+  hoverCheckAt = now;
+  const overPhoto = !event.target.closest(INTERACTIVE) && photoAt(event.clientX, event.clientY);
+  document.body.style.cursor = overPhoto ? 'zoom-in' : '';
+});
+
+el('lbClose').addEventListener('click', closeLightbox);
+el('lbPrev').addEventListener('click', () => setLightboxPhoto(lightboxIndex - 1));
+el('lbNext').addEventListener('click', () => setLightboxPhoto(lightboxIndex + 1));
+lightbox.addEventListener('click', (event) => {
+  if (event.target === lightbox) closeLightbox();
+});
+
+// Свайп влево/вправо на телефоне
+let swipeX = null;
+lightbox.addEventListener('touchstart', (e) => { swipeX = e.touches[0].clientX; }, { passive: true });
+lightbox.addEventListener('touchend', (e) => {
+  if (swipeX === null) return;
+  const dx = e.changedTouches[0].clientX - swipeX;
+  swipeX = null;
+  if (Math.abs(dx) > 50) setLightboxPhoto(lightboxIndex + (dx < 0 ? 1 : -1));
+});
+
+document.addEventListener('keydown', (event) => {
+  if (lightbox.classList.contains('open')) {
+    if (event.key === 'Escape') closeLightbox();
+    if (event.key === 'ArrowLeft') setLightboxPhoto(lightboxIndex - 1);
+    if (event.key === 'ArrowRight') setLightboxPhoto(lightboxIndex + 1);
+  } else if (gallery.classList.contains('open') && event.key === 'Escape') {
+    closeGallery();
+  }
+});
+
+/* ============================================================
+   5в. ФИНАЛЬНАЯ ГАЛЕРЕЯ (после видео)
+   ============================================================ */
+const gallery     = el('gallery');
+const galSlides   = [el('galA'), el('galB')];
+const galFinal    = el('galFinal');
+const galProgress = el('galProgress');
+const galCounter  = el('galCounter');
+const galleryBtn  = el('galleryBtn');
+let galTimer = null;
+let galIndex = 0;
+let galFlip = 0;
+let galOrder = [];
+
+function preloadImage(src) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = img.onerror = () => resolve();
+    img.src = src;
+  });
+}
+
+async function showGallerySlide() {
+  if (!gallery.classList.contains('open')) return;
+
+  if (galIndex >= galOrder.length) {
+    galProgress.style.width = '100%';
+    galFinal.classList.add('show');
+    boom({ particleCount: 160, spread: 140, origin: { y: 0.55 },
+           colors: ['#ff6ec7', '#c77dff', '#ff9e00', '#ffffff'] });
+    return;
+  }
+
+  const src = galOrder[galIndex];
+  await preloadImage(src);
+  if (!gallery.classList.contains('open')) return;
+
+  const slide = galSlides[galFlip];
+  const other = galSlides[1 - galFlip];
+  slide.querySelector('.gal-bg').style.backgroundImage = "url('" + src + "')";
+  slide.querySelector('img').src = src;
+  slide.querySelector('.gal-cap').textContent = CONFIG.PHOTO_CAPTIONS[src] || '';
+
+  // перезапуск анимаций у слайда
+  slide.classList.remove('show');
+  void slide.offsetWidth;
+  slide.classList.add('show');
+  other.classList.remove('show');
+
+  galCounter.textContent = (galIndex + 1) + ' / ' + galOrder.length;
+  galProgress.style.width = ((galIndex + 1) / galOrder.length * 100).toFixed(1) + '%';
+
+  galFlip = 1 - galFlip;
+  galIndex += 1;
+  galTimer = setTimeout(showGallerySlide, CONFIG.GALLERY_SECONDS * 1000);
+}
+
+function openGallery() {
+  if (CONFIG.PHOTOS.length === 0) return;
+  closeLightbox();
+  clearTimeout(galTimer);
+  galOrder = CONFIG.PHOTOS.slice();
+  galIndex = 0;
+  galFinal.classList.remove('show');
+  galSlides.forEach((s) => s.classList.remove('show'));
+  galProgress.style.width = '0';
+  gallery.classList.add('open');
+  gallery.setAttribute('aria-hidden', 'false');
+  if (!musicMuted && bgMusic.paused) startMusic(1500);
+  setTimeout(showGallerySlide, 700);
+}
+
+function closeGallery() {
+  clearTimeout(galTimer);
+  gallery.classList.remove('open');
+  gallery.setAttribute('aria-hidden', 'true');
+  galleryBtn.classList.remove('hide');
+}
+
+el('galClose').addEventListener('click', closeGallery);
+el('galDone').addEventListener('click', closeGallery);
+el('galReplay').addEventListener('click', openGallery);
+galleryBtn.addEventListener('click', openGallery);
 
 /* ============================================================
    6. СЛЕД КУРСОРА / ПАЛЬЦА
@@ -1290,6 +1803,12 @@ startBtn.addEventListener('click', () => {
   if (noBtnPinned) noBtnPinned = false;
 
   buildCake();
+
+  // Пока задувают свечки — начинаем подгружать видео заранее
+  if (surpriseMode === 'video') {
+    video.preload = 'auto';
+    try { video.load(); } catch (e) { /* не страшно */ }
+  }
 });
 
 /* ============================================================
@@ -1300,9 +1819,31 @@ let surpriseMode = /\.(gif|webp|apng|png|jpe?g)(\?|#|$)/i.test(CONFIG.SURPRISE_S
 let surpriseShown = false;
 let imageSurpriseStarted = false;
 
+const videoWrap  = el('videoWrap');
+const videoCover = el('videoCover');
+
+// Обложка: случайное фото на фоне + «Загружается сюрприз…»
+function showVideoCover() {
+  if (CONFIG.PHOTOS.length) {
+    const src = CONFIG.PHOTOS[Math.floor(Math.random() * CONFIG.PHOTOS.length)];
+    videoCover.style.backgroundImage = "url('" + src + "')";
+  }
+  videoWrap.classList.add('loading');
+  videoCover.classList.remove('gone');
+}
+
+function hideVideoCover() {
+  videoCover.classList.add('gone');
+  videoWrap.classList.remove('loading');
+}
+
+video.addEventListener('playing', hideVideoCover);
+
 function showImageSurprise(src) {
   surpriseMode = 'image';
   video.pause();
+  hideVideoCover();
+  videoWrap.classList.add('hide');
   video.classList.add('hide');
   videoMissing.classList.add('hide');
   surpriseImg.src = src;
@@ -1313,6 +1854,7 @@ function showVideoSurprise(src) {
   surpriseMode = 'video';
   surpriseImg.classList.add('hide');
   videoMissing.classList.add('hide');
+  videoWrap.classList.remove('hide');
   video.src = src;
   video.classList.remove('hide');
 }
@@ -1331,6 +1873,7 @@ function startImageSurpriseFlow() {
     if (CONFIG.RESUME_MUSIC_AFTER_VIDEO && !musicMuted) {
       setTimeout(() => startMusic(2000), 900);
     }
+    setTimeout(openGallery, 6000);
   }, 5000);
 }
 
@@ -1377,6 +1920,10 @@ async function showSurprise() {
     return;
   }
 
+  // Обложку показываем, только если видео ещё не готово играть сразу
+  if (video.readyState < 3) showVideoCover();
+  else hideVideoCover();
+
   const playing = video.play();
   if (playing && typeof playing.catch === 'function') {
     playing.catch(() => {
@@ -1396,6 +1943,8 @@ video.addEventListener('ended', () => {
   if (CONFIG.RESUME_MUSIC_AFTER_VIDEO && !musicMuted) {
     setTimeout(() => startMusic(2000), 900);
   }
+  // Даём посмотреть салют, потом — галерея с фото
+  setTimeout(openGallery, 5000);
 });
 
 function runFireworks() {
